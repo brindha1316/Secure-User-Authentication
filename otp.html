@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>QR OTP Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+      }
+      .container {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+      }
+      h2 {
+        margin-bottom: 15px;
+      }
+      .otp {
+        font-size: 32px;
+        font-weight: bold;
+        background: #fff;
+        color: black;
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Your OTP is:</h2>
+      <div id="otp" class="otp"></div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const otp = urlParams.get("otp");
+      document.getElementById("otp").textContent = otp ? otp : "No OTP Found";
+    </script>
+  </body>
+</html>
