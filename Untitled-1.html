@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Secure Login with QR OTP</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <style>
+      /* Background */
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        overflow: hidden;
+      }
+
+      /* Glass container */
+      .container {
+        width: 350px;
+        padding: 30px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        color: #fff;
+        animation: fadeIn 0.6s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h2 {
+        margin-bottom: 20px;
+        font-weight: 600;
+        font-size: 22px;
+        letter-spacing: 1px;
+      }
+
+      input {
+        width: 90%;
+        padding: 12px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+      }
+
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      button {
+        width: 95%;
+        padding: 12px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .message {
+        margin-top: 12px;
+        font-weight: 500;
+      }
+
+      .error {
+        color: #ff6b6b;
+      }
+
+      .success {
+        color: #00ff9d;
+      }
+
+      #qrcode {
+        margin: 15px auto;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        display: inline-block;
+      }
+
+      /* Dashboard */
+      #dashboard {
+        text-align: center;
+      }
+
+      #dashboard h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      #dashboard p {
+        font-size: 16px;
+        color: #e0e0e0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Login Section -->
+      <div id="login-section">
+        <h2>🔐 Secure Login</h2>
+        <input type="text" id="username" placeholder="Enter Username" /><br />
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter Password"
+        /><br />
+        <button onclick="validateLogin()">Login</button>
+        <div id="login-msg" class="message"></div>
+      </div>
+
+      <!-- QR Code Section -->
+      <div id="qr-section" class="hidden">
+        <h2>📱 Scan QR for OTP</h2>
+        <div id="qrcode"></div>
+        <p>Scan this QR code to reveal your OTP</p>
+      </div>
+
+      <!-- OTP Section -->
+      <div id="otp-section" class="hidden">
+        <h2>🔑 OTP Verification</h2>
+        <input type="text" id="otp-input" placeholder="Enter OTP" /><br />
+        <button onclick="verifyOTP()">Verify OTP</button>
+        <div id="otp-msg" class="message"></div>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="dashboard" class="hidden">
+        <h2>🎉 Welcome, Brindhadevi!</h2>
+        <p>You have successfully logged in to your secure dashboard.</p>
+      </div>
+    </div>
+
+    <script>
+      const demoUser = "admin";
+      const demoPass = "1234";
+      let generatedOTP = null;
+
+      function validateLogin() {
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+        const msg = document.getElementById("login-msg");
+
+        if (user === demoUser && pass === demoPass) {
+          msg.innerHTML = "";
+          document.getElementById("login-section").classList.add("hidden");
+          document.getElementById("qr-section").classList.remove("hidden");
+          generateQR();
+        } else {
+          msg.innerHTML = "❌ Invalid Username or Password!";
+          msg.className = "message error";
+        }
+      }
+
+      function generateQR() {
+        generatedOTP = Math.floor(100000 + Math.random() * 900000);
+        const protocol = window.location.protocol;
+        const host = window.location.hostname;
+        const port = window.location.port ? `:${window.location.port}` : "";
+        const basePath = window.location.pathname.replace("index.html", "");
+        const otpURL = `${protocol}//${host}${port}${basePath}otp.html?otp=${generatedOTP}`;
+
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+          text: otpURL,
+          width: 180,
+          height: 180,
+        });
+
+        document.getElementById("otp-section").classList.remove("hidden");
+        console.log("OTP URL:", otpURL);
+      }
+
+      function verifyOTP() {
+        const userOTP = document.getElementById("otp-input").value;
+        const msg = document.getElementById("otp-msg");
+
+        if (userOTP == generatedOTP) {
+          msg.innerHTML = "";
+          document.getElementById("otp-section").classList.add("hidden");
+          document.getElementById("qr-section").classList.add("hidden");
+          document.getElementById("dashboard").classList.remove("hidden");
+        } else {
+          msg.innerHTML = "❌ Invalid OTP!";
+          msg.className = "message error";
+        }
+      }
+    </script>
+  </body>
+</html>
